@@ -171,7 +171,7 @@ namespace DCUtils
                 int nth = 1;
                 foreach (var item in infos)
                 {
-                    if (!_stopLoop) break;
+                    if (_stopLoop) break;
                     var p_link = item.QuerySelectorAll("a").First().GetAttribute("href");
                     var p_name = item.TextContent;
 
