@@ -169,36 +169,34 @@ namespace DCUtils
                 var infos = imageListContainer.First().QuerySelectorAll("li");
 
                 int nth = 1;
-                if (!_stopLoop)
+                foreach (var item in infos)
                 {
-                    foreach (var item in infos)
+                    if (!_stopLoop) break;
+                    var p_link = item.QuerySelectorAll("a").First().GetAttribute("href");
+                    var p_name = item.TextContent;
+
+                    string name = WebUtility.HtmlDecode(p_name);
+                    string link = WebUtility.HtmlDecode(p_link.Replace("image.dcinside.com/download", "dcimg2.dcinside.com/viewimage"));
+
+                    string fileName = String.Format("{0}_{1}_{2}", gallery, no, name);
+                    string filePath = String.Format("{0}/{1}/{2}", saveFolder, gallery, fileName);
+
+                    WebClient webClient = new WebClient();
+                    await webClient.DownloadFileTaskAsync(new Uri(link), filePath);
+
+                    string fileHash = GetChecksum(filePath);
+                    if (savedImageHash.Add(fileHash))
                     {
-                        var p_link = item.QuerySelectorAll("a").First().GetAttribute("href");
-                        var p_name = item.TextContent;
-
-                        string name = WebUtility.HtmlDecode(p_name);
-                        string link = WebUtility.HtmlDecode(p_link.Replace("image.dcinside.com/download", "dcimg2.dcinside.com/viewimage"));
-
-                        string fileName = String.Format("{0}_{1}_{2}", gallery, no, name);
-                        string filePath = String.Format("{0}/{1}/{2}", saveFolder, gallery, fileName);
-
-                        WebClient webClient = new WebClient();
-                        await webClient.DownloadFileTaskAsync(new Uri(link), filePath);
-
-                        string fileHash = GetChecksum(filePath);
-                        if (savedImageHash.Add(fileHash))
-                        {
-                            Picture picture = new Picture(gallery, no, nth, fileName, fileHash);
-                            pictureList.Insert(0, picture);
-                            savedImage++;
-                            label_savedImage.Text = savedImage.ToString();
-                        }
-                        else
-                        {
-                            File.Delete(filePath);
-                        }
-                        nth++;
+                        Picture picture = new Picture(gallery, no, nth, fileName, fileHash);
+                        pictureList.Insert(0, picture);
+                        savedImage++;
+                        label_savedImage.Text = savedImage.ToString();
                     }
+                    else
+                    {
+                        File.Delete(filePath);
+                    }
+                    nth++;
                 }
             }
             catch (Exception ex)
