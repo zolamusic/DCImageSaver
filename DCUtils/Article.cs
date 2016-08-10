@@ -8,6 +8,7 @@ namespace DCUtils
 {
     public class Article
     {
+        private string _gallname;
         private int _no;
         private string _info;
         private string _subject;
@@ -17,7 +18,19 @@ namespace DCUtils
         private DateTime _date;
         private int _hits;
         private int _recomm;
-        private string _ip;
+
+        public string Gallname
+        {
+            get
+            {
+                return _gallname;
+            }
+
+            set
+            {
+                _gallname = value;
+            }
+        }
 
         public int No
         {
@@ -135,22 +148,10 @@ namespace DCUtils
                 _recomm = value;
             }
         }
-
-        public string Ip
+        
+        public Article(string _gallname, int _no, string _info, string _subject, int _comments, string _userid, string _username, DateTime _date, int _hits, int _recomm)
         {
-            get
-            {
-                return _ip;
-            }
-
-            set
-            {
-                _ip = value;
-            }
-        }
-
-        public Article(int _no, string _info, string _subject, int _comments, string _userid, string _username, DateTime _date, int _hits, int _recomm, string _ip)
-        {
+            this.Gallname = _gallname;
             this.No = _no;
             this.Info = _info;
             this.Subject = _subject;
@@ -160,7 +161,6 @@ namespace DCUtils
             this.Date = _date;
             this.Hits = _hits;
             this.Recomm = _recomm;
-            this.Ip = _ip;
         }
     }
 }
