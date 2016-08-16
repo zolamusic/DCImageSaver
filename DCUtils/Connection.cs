@@ -78,7 +78,7 @@ namespace DCUtils
             }
         }
 
-        public async Task<IHtmlDocument> ConnectString()
+        public async Task<string> ConnectString()
         {
             HtmlParser parser = new HtmlParser();
             CookieContainer cookieContainer = new CookieContainer();
@@ -93,8 +93,7 @@ namespace DCUtils
                 {
                     using (HttpContent content = response.Content)
                     {
-                        string getString = await content.ReadAsStringAsync();
-                        return parser.Parse(getString);
+                        return await content.ReadAsStringAsync();
                     }
                 }
             }
@@ -142,7 +141,11 @@ namespace DCUtils
                         Task<string> getStringTask = content.ReadAsStringAsync();
                         string result = await getStringTask;
                     }
-                    loginCookies = cookieContainer.GetCookies(new Uri("http://" + this.url.Host));
+                    if (cookieContainer.Count > 3)
+                    {
+                        loginCookies.Add(cookieContainer.GetCookies(new Uri("http://" + this.url.Host))[0]);
+                    }
+
                     return cookieContainer.GetCookies(this.url);
                 }
             }

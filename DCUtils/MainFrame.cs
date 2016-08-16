@@ -21,12 +21,14 @@ namespace DCUtils
         public BindingList<Article> articleList = new BindingList<Article>();
         public BindingList<Comment> commentList = new BindingList<Comment>();
         public BindingList<Picture> pictureList = new BindingList<Picture>();
+        public List<KeyValuePair<string, string>> queries;
 
         public HashSet<string> savedImageHash = new HashSet<string>();
         public HashSet<int> updateArticle = new HashSet<int>();
 
         public static int savedArticle = 0;
         public static int savedImage = 0;
+        public static bool isLogged = false;
 
         public static string saveFolder = "";
         private bool _stopLoop = false;
@@ -113,13 +115,67 @@ namespace DCUtils
 
         private string GetChecksum(string file)
         {
-
             using (FileStream stream = File.OpenRead(file))
             {
                 var sha = new SHA256Managed();
                 byte[] checksum = sha.ComputeHash(stream);
                 return BitConverter.ToString(checksum).Replace("-", String.Empty);
             }
+        }
+
+        private async Task<bool> login()
+        {
+            Connection login = new Connection(
+                "http://m.dcinside.com/login.php",
+                "http://gall.dcinside.com",
+                true
+            );
+            Connection accessToken = new Connection(
+                "http://m.dcinside.com/_access_token.php",
+                "http://m.dcinside.com/login.php",
+                true
+            );
+            Connection loginOk = new Connection(
+                "https://dcid.dcinside.com/join/mobile_login_ok.php",
+                "http://m.dcinside.com/login.php?r_url=%2Findex.php",
+                true
+            );
+
+            var conKey = "";
+            var cookieNum = 0;
+            CookieCollection loginCookies = new CookieCollection();
+            while (cookieNum != 4)
+            {
+                var htmlLogin = await login.ConnectString();
+                conKey = htmlLogin.Split(new string[] { "con_key\" value=\"" }, StringSplitOptions.None)[1].Split(new string[] { "\" />" }, StringSplitOptions.None)[0];
+
+                queries = new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("token_verify", "login"),
+                    new KeyValuePair<string, string>("con_key", conKey),
+                };
+                var htmlAccessToken = await accessToken.ConnectString(queries);
+                conKey = htmlAccessToken.Split(new string[] { "data\":\"" }, StringSplitOptions.None)[1].Split(new string[] { "\"}" }, StringSplitOptions.None)[0];
+
+                queries = new List<KeyValuePair<string, string>>()
+                {
+                    new KeyValuePair<string, string>("user_id", text_userid.Text),
+                    new KeyValuePair<string, string>("user_pw", text_passwd.Text),
+                    new KeyValuePair<string, string>("id_chk", "on"),
+                    new KeyValuePair<string, string>("mode", ""),
+                    new KeyValuePair<string, string>("con_key", conKey),
+                };
+                loginCookies = await loginOk.GetLoginCookie(queries);
+                cookieNum = loginCookies.Count;
+            }
+
+            text_logger.AppendText("로그인 성공.");
+            btn_login.Enabled = false;
+            text_userid.Enabled = false;
+            text_passwd.Enabled = false;
+            isLogged = true;
+
+            return true;
         }
 
         private async Task<bool> PreChekingDupeFiles(string gallery)
@@ -129,6 +185,10 @@ namespace DCUtils
                 if (!Directory.Exists(String.Format("{0}/{1}", saveFolder, gallery)))
                 {
                     Directory.CreateDirectory(String.Format("{0}/{1}", saveFolder, gallery));
+                }
+                if (!Directory.Exists(String.Format("{0}/{1}/temp", saveFolder, gallery)))
+                {
+                    Directory.CreateDirectory(String.Format("{0}/{1}/temp", saveFolder, gallery));
                 }
 
                 string[] files = Directory.GetFiles(String.Format("{0}/{1}", saveFolder, gallery), "*.*");
@@ -179,29 +239,32 @@ namespace DCUtils
                     string link = WebUtility.HtmlDecode(p_link.Replace("image.dcinside.com/download", "dcimg2.dcinside.com/viewimage"));
 
                     string fileName = String.Format("{0}_{1}_{2}", gallery, no, name);
+                    string tempPath = String.Format("{0}/{1}/temp/{2}", saveFolder, gallery, fileName);
                     string filePath = String.Format("{0}/{1}/{2}", saveFolder, gallery, fileName);
 
                     WebClient webClient = new WebClient();
-                    await webClient.DownloadFileTaskAsync(new Uri(link), filePath);
+                    await webClient.DownloadFileTaskAsync(new Uri(link), tempPath);
 
-                    string fileHash = GetChecksum(filePath);
+                    string fileHash = GetChecksum(tempPath);
                     if (savedImageHash.Add(fileHash))
                     {
                         Picture picture = new Picture(gallery, no, nth, fileName, fileHash);
                         pictureList.Insert(0, picture);
+                        File.Copy(tempPath, filePath);
+                        File.Delete(tempPath);
                         savedImage++;
                         label_savedImage.Text = savedImage.ToString();
                     }
                     else
                     {
-                        File.Delete(filePath);
+                        File.Delete(tempPath);
                     }
                     nth++;
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                text_logger.AppendText(String.Format("{0}\r\n", ex.ToString()));
+                text_logger.AppendText(String.Format("{0}/{1}: Image Download\r\n", gallery, no));
             }
             return true;
         }
@@ -250,7 +313,6 @@ namespace DCUtils
                     DateTime date = Convert.ToDateTime(t_date);
                     int hits = Convert.ToInt32(t_hits);
                     int recomm = Convert.ToInt32(t_recomm);
-                    string ip = "";
                     /*
                     if (!check_subject.Checked &&
                         !check_userid.Checked &&
@@ -295,106 +357,13 @@ namespace DCUtils
             return isFinished;
         }
 
-        /*
-        private async Task<string> parsingArticle(int no)
-        {
-            Connection articlePage;
-            string ip = "";
-            articlePage = new Connection(
-                    String.Format("http://gall.dcinside.com/board/view/?id={0}&no={1}", gallname, no),
-                    "http://gall.dcinside.com",
-                    false
-                );
-            try
-            {
-                var htmlContents = await articlePage.ConnectHtml();
-                ip = htmlContents.GetElementsByClassName("li_ip")[0].TextContent;
-            }
-            catch
-            {
-
-            }
-            return ip;
-        }
-        */
-
-        /*
-        private async Task<bool> parsingComment(int no, int commpage)
-        {
-            bool isFinished = false;
-            Connection commentPage;
-
-            commentPage = new Connection(
-                String.Format("http://m.dcinside.com/comment_more_new.php?id={0}&no={1}", gallname, no),
-                String.Format("http://m.dcinside.com/list.php?id={0}", gallname),
-                false
-            );
-
-            try
-            {
-                var htmlContents = await commentPage.ConnectHtml();
-
-                var infos = htmlContents.GetElementsByClassName("inner_best");
-
-                foreach (var items in infos)
-                {
-                    var c_userid = "";
-                    var c_iNo = "0";
-                    int c_node = items.GetElementsByClassName("nick_comm").Count();
-                    if (c_node == 1)
-                        c_userid = items.GetElementsByClassName("id")[0].GetAttribute("href").Replace("http://m.dcinside.com/gallog/home.php?g_id=", "");
-                    var c_username = items.GetElementsByClassName("id")[0].TextContent.Replace("[", "").Replace("]", "");
-                    var c_memo = items.GetElementsByClassName("txt")[0].TextContent;
-                    var c_date = items.GetElementsByClassName("date")[0].TextContent;
-                    var c_ip = items.GetElementsByClassName("ip")[0].TextContent;
-                    int c_node_del = items.GetElementsByClassName("btn_delete").Count();
-                    if (c_node_del > 0)
-                        c_iNo = items.GetElementsByClassName("btn_delete")[0].GetAttribute("href").Split('\'')[1].Split('\'')[0];
-
-                    int iNo = Convert.ToInt32(c_iNo);
-                    string memo = WebUtility.HtmlDecode(c_memo);
-                    string userid = WebUtility.HtmlDecode(c_userid);
-                    string username = WebUtility.HtmlDecode(c_username);
-                    DateTime date = Convert.ToDateTime(c_date);
-                    string ip = c_ip;
-
-                    if (check_and.Checked)
-                    {
-                        //if (!memo.Contains(search_memo.Text)) continue;
-                        if (check_userid.Checked && !userid.Contains(search_userid.Text)) continue;
-                        if (check_username.Checked && !username.Contains(search_username.Text)) continue;
-                    }
-                    else
-                    {
-                        int searchValue = 0;
-                        //if (memo.Contains(search_subject.Text)) searchValue++;
-                        if (check_userid.Checked && userid.Contains(search_userid.Text)) searchValue++;
-                        if (check_username.Checked && username.Contains(search_username.Text)) searchValue++;
-                        if (searchValue == 0) continue;
-                    }
-
-                    Comment comment = new Comment(no, iNo, memo, userid, username, date, ip);
-                    commentList.Add(comment);
-                }
-            }
-            catch
-            {
-
-            }
-            
-            isFinished = true;
-            return isFinished;
-        }
-        */
-
-        /*
-        private async Task<bool> parsingList(int page)
+        private async Task<bool> parsingList(string gallery, int page)
         {
             bool isFinished = false;
             Connection galleryPage;
 
             galleryPage = new Connection(
-                    String.Format("http://gall.dcinside.com/board/lists/?id={0}&page={1}", gallname, page),
+                    String.Format("http://gall.dcinside.com/board/lists/?id={0}&page={1}", gallery, page),
                     "http://gall.dcinside.com",
                     false
                 );
@@ -432,8 +401,7 @@ namespace DCUtils
                     DateTime date = Convert.ToDateTime(t_date);
                     int hits = Convert.ToInt32(t_hits);
                     int recomm = Convert.ToInt32(t_recomm);
-                    string ip = "";
-
+                    /*
                     if (!check_subject.Checked &&
                         !check_userid.Checked &&
                         !check_username.Checked)
@@ -457,13 +425,15 @@ namespace DCUtils
                             if (searchValue == 0) continue;
                         }
                     }
+                    */
 
-                    if (updateArticle.Add(notice))
+                    if (!_stopLoop && info.Contains("pic") && updateArticle.Add(notice))
                     {
-                        Article article = new Article(notice, info, subject, comment, userid, username, date, hits, recomm, ip);
-                        articleList.Add(article);
-
-                        if (check_saveImage.Checked && info.Contains("pic")) await parsingImages(notice);
+                        Article article = new Article(gallery, notice, info, subject, comment, userid, username, date, hits, recomm);
+                        articleList.Insert(0, article);
+                        savedArticle++;
+                        label_savedArticle.Text = savedArticle.ToString();
+                        await parsingImages(gallery, notice);
                     }
                 }
             }
@@ -475,7 +445,27 @@ namespace DCUtils
             isFinished = true;
             return isFinished;
         }
-        */
+
+        private async Task<bool> IsAdult(string gallery)
+        {
+            bool isAdultGallery = false;
+            Connection galleryMain = new Connection(
+                "http://gall.dcinside.com/board/lists/?id=" + gallery,
+                "http://gall.dcinside.com",
+                false
+            );
+            try
+            {
+                var htmlContents = await galleryMain.ConnectString();
+                if (htmlContents.Contains("error/adult")) { isAdultGallery = true; }
+            }
+            catch (Exception ex)
+            {
+                text_logger.AppendText(ex.ToString() + "\r\n");
+            }
+
+            return isAdultGallery;
+        }
 
         private async void GoGetSomePics(string gallery)
         {
@@ -551,7 +541,6 @@ namespace DCUtils
             button2.Enabled = false;
             
             btn_refresh.Enabled = false;
-            
             /*
             check_userid.Enabled = false;
             check_username.Enabled = false;
@@ -592,31 +581,37 @@ namespace DCUtils
             EnablingButtons();
         }
 
-        private void check_subject_CheckedChanged(object sender, EventArgs e)
-        {
-            if (check_subject.Checked) search_subject.Enabled = true;
-            else search_subject.Enabled = false;
-        }
-        
-        private void check_userid_CheckedChanged(object sender, EventArgs e)
-        {
-            if (check_userid.Checked) search_userid.Enabled = true;
-            else search_userid.Enabled = false;
-        }
-
         private void check_username_CheckedChanged(object sender, EventArgs e)
         {
             if (check_username.Checked) search_username.Enabled = true;
             else search_username.Enabled = false;
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
             if (galleryList.Count > 0)
             {
-                selectedList.Add(new KeyValuePair<string, string>(galleryList.ElementAt(list_galleryList.SelectedIndex).Key, galleryList.ElementAt(list_galleryList.SelectedIndex).Value));
-                galleryList.Remove(new KeyValuePair<string, string>(galleryList.ElementAt(list_galleryList.SelectedIndex).Key, galleryList.ElementAt(list_galleryList.SelectedIndex).Value));
-                btn_refresh.Enabled = true;
+                var koName = galleryList.ElementAt(list_galleryList.SelectedIndex).Key;
+                var enName = galleryList.ElementAt(list_galleryList.SelectedIndex).Value;
+                if(await IsAdult(enName))
+                {
+                    if (isLogged)
+                    {
+                        selectedList.Add(new KeyValuePair<string, string>(koName, enName));
+                        galleryList.Remove(new KeyValuePair<string, string>(koName, enName));
+                        btn_refresh.Enabled = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("성인인증이 필요한 갤러리입니다.\r\n로그인하세요.");
+                    }
+                }
+                else
+                {
+                    selectedList.Add(new KeyValuePair<string, string>(koName, enName));
+                    galleryList.Remove(new KeyValuePair<string, string>(koName, enName));
+                    btn_refresh.Enabled = true;
+                }
             }
         }
 
@@ -624,10 +619,18 @@ namespace DCUtils
         {
             if ( selectedList.Count > 0)
             {
-                galleryList.Insert(0, new KeyValuePair<string, string>(selectedList.ElementAt(list_selected.SelectedIndex).Key, selectedList.ElementAt(list_selected.SelectedIndex).Value));
-                selectedList.Remove(new KeyValuePair<string, string>(selectedList.ElementAt(list_selected.SelectedIndex).Key, selectedList.ElementAt(list_selected.SelectedIndex).Value));
+                var koName = selectedList.ElementAt(list_selected.SelectedIndex).Key;
+                var enName = selectedList.ElementAt(list_selected.SelectedIndex).Value;
+
+                galleryList.Insert(0, new KeyValuePair<string, string>(koName, enName));
+                selectedList.Remove(new KeyValuePair<string, string>(koName, enName));
             }
             if (selectedList.Count == 0) btn_refresh.Enabled = false;
+        }
+
+        private async void btn_login_Click(object sender, EventArgs e)
+        {
+            var task = await login();
         }
     }
 

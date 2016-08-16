@@ -28,8 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrame));
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -37,11 +37,7 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.data_picture = new System.Windows.Forms.DataGridView();
             this.btn_stop = new System.Windows.Forms.Button();
-            this.search_subject = new System.Windows.Forms.TextBox();
-            this.search_userid = new System.Windows.Forms.TextBox();
             this.search_username = new System.Windows.Forms.TextBox();
-            this.check_subject = new System.Windows.Forms.CheckBox();
-            this.check_userid = new System.Windows.Forms.CheckBox();
             this.check_username = new System.Windows.Forms.CheckBox();
             this.btn_refresh = new System.Windows.Forms.Button();
             this.list_galleryList = new System.Windows.Forms.ListBox();
@@ -49,15 +45,20 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.text_logger = new System.Windows.Forms.TextBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.text_userid = new System.Windows.Forms.TextBox();
+            this.text_passwd = new System.Windows.Forms.TextBox();
+            this.btn_login = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label_savedImage = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label_savedArticle = new System.Windows.Forms.Label();
-            this.label_savedImage = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.data_article)).BeginInit();
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.data_picture)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -91,8 +92,8 @@
             this.data_article.AllowUserToAddRows = false;
             this.data_article.AllowUserToDeleteRows = false;
             this.data_article.AllowUserToResizeRows = false;
-            dataGridViewCellStyle5.BackColor = System.Drawing.Color.LightYellow;
-            this.data_article.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.LightYellow;
+            this.data_article.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.data_article.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -124,8 +125,8 @@
             this.data_picture.AllowUserToAddRows = false;
             this.data_picture.AllowUserToDeleteRows = false;
             this.data_picture.AllowUserToResizeRows = false;
-            dataGridViewCellStyle6.BackColor = System.Drawing.Color.Honeydew;
-            this.data_picture.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.Honeydew;
+            this.data_picture.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
             this.data_picture.BackgroundColor = System.Drawing.SystemColors.Control;
             this.data_picture.ColumnHeadersHeight = 20;
             this.data_picture.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -143,81 +144,43 @@
             // btn_stop
             // 
             this.btn_stop.Enabled = false;
-            this.btn_stop.Location = new System.Drawing.Point(619, 59);
+            this.btn_stop.Location = new System.Drawing.Point(306, 59);
             this.btn_stop.Name = "btn_stop";
-            this.btn_stop.Size = new System.Drawing.Size(75, 42);
+            this.btn_stop.Size = new System.Drawing.Size(83, 42);
             this.btn_stop.TabIndex = 5;
             this.btn_stop.Text = "정지";
             this.btn_stop.UseVisualStyleBackColor = true;
             this.btn_stop.Click += new System.EventHandler(this.btn_stop_Click);
             // 
-            // search_subject
-            // 
-            this.search_subject.Enabled = false;
-            this.search_subject.Location = new System.Drawing.Point(381, 20);
-            this.search_subject.Name = "search_subject";
-            this.search_subject.Size = new System.Drawing.Size(220, 21);
-            this.search_subject.TabIndex = 11;
-            // 
-            // search_userid
-            // 
-            this.search_userid.Enabled = false;
-            this.search_userid.Location = new System.Drawing.Point(381, 47);
-            this.search_userid.Name = "search_userid";
-            this.search_userid.Size = new System.Drawing.Size(100, 21);
-            this.search_userid.TabIndex = 13;
-            // 
             // search_username
             // 
             this.search_username.Enabled = false;
-            this.search_username.Location = new System.Drawing.Point(381, 73);
+            this.search_username.Location = new System.Drawing.Point(693, 71);
             this.search_username.Name = "search_username";
             this.search_username.Size = new System.Drawing.Size(100, 21);
             this.search_username.TabIndex = 15;
-            // 
-            // check_subject
-            // 
-            this.check_subject.AutoSize = true;
-            this.check_subject.Enabled = false;
-            this.check_subject.Location = new System.Drawing.Point(309, 22);
-            this.check_subject.Name = "check_subject";
-            this.check_subject.Size = new System.Drawing.Size(66, 16);
-            this.check_subject.TabIndex = 10;
-            this.check_subject.Text = "Subject";
-            this.check_subject.UseVisualStyleBackColor = true;
-            this.check_subject.CheckedChanged += new System.EventHandler(this.check_subject_CheckedChanged);
-            // 
-            // check_userid
-            // 
-            this.check_userid.AutoSize = true;
-            this.check_userid.Enabled = false;
-            this.check_userid.Location = new System.Drawing.Point(309, 49);
-            this.check_userid.Name = "check_userid";
-            this.check_userid.Size = new System.Drawing.Size(35, 16);
-            this.check_userid.TabIndex = 12;
-            this.check_userid.Text = "ID";
-            this.check_userid.UseVisualStyleBackColor = true;
-            this.check_userid.CheckedChanged += new System.EventHandler(this.check_userid_CheckedChanged);
+            this.search_username.Visible = false;
             // 
             // check_username
             // 
             this.check_username.AutoSize = true;
             this.check_username.Enabled = false;
-            this.check_username.Location = new System.Drawing.Point(309, 75);
+            this.check_username.Location = new System.Drawing.Point(629, 73);
             this.check_username.Name = "check_username";
             this.check_username.Size = new System.Drawing.Size(58, 16);
             this.check_username.TabIndex = 14;
             this.check_username.Text = "Name";
             this.check_username.UseVisualStyleBackColor = true;
+            this.check_username.Visible = false;
             this.check_username.CheckedChanged += new System.EventHandler(this.check_username_CheckedChanged);
             // 
             // btn_refresh
             // 
-            this.btn_refresh.Location = new System.Drawing.Point(619, 11);
+            this.btn_refresh.Location = new System.Drawing.Point(306, 11);
             this.btn_refresh.Name = "btn_refresh";
-            this.btn_refresh.Size = new System.Drawing.Size(75, 42);
+            this.btn_refresh.Size = new System.Drawing.Size(83, 42);
             this.btn_refresh.TabIndex = 4;
-            this.btn_refresh.Text = "눈팅";
+            this.btn_refresh.Text = "짤방 저장 ";
             this.btn_refresh.UseVisualStyleBackColor = true;
             this.btn_refresh.Click += new System.EventHandler(this.btn_refresh_Click);
             // 
@@ -267,50 +230,90 @@
             // 
             this.text_logger.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.text_logger.Location = new System.Drawing.Point(710, 12);
+            this.text_logger.Location = new System.Drawing.Point(600, 12);
             this.text_logger.Multiline = true;
             this.text_logger.Name = "text_logger";
             this.text_logger.ReadOnly = true;
             this.text_logger.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.text_logger.Size = new System.Drawing.Size(427, 88);
+            this.text_logger.Size = new System.Drawing.Size(537, 88);
             this.text_logger.TabIndex = 20;
-            this.text_logger.Text = "검색기능은 빼버렸음";
             // 
-            // label1
+            // text_userid
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(508, 56);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(21, 12);
-            this.label1.TabIndex = 21;
-            this.label1.Text = "글:";
+            this.text_userid.Location = new System.Drawing.Point(6, 20);
+            this.text_userid.Name = "text_userid";
+            this.text_userid.Size = new System.Drawing.Size(100, 21);
+            this.text_userid.TabIndex = 25;
             // 
-            // label2
+            // text_passwd
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(508, 76);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(33, 12);
-            this.label2.TabIndex = 22;
-            this.label2.Text = "짤방:";
+            this.text_passwd.Location = new System.Drawing.Point(6, 47);
+            this.text_passwd.Name = "text_passwd";
+            this.text_passwd.PasswordChar = '*';
+            this.text_passwd.Size = new System.Drawing.Size(100, 21);
+            this.text_passwd.TabIndex = 26;
             // 
-            // label_savedArticle
+            // btn_login
             // 
-            this.label_savedArticle.AutoSize = true;
-            this.label_savedArticle.Location = new System.Drawing.Point(547, 56);
-            this.label_savedArticle.Name = "label_savedArticle";
-            this.label_savedArticle.Size = new System.Drawing.Size(11, 12);
-            this.label_savedArticle.TabIndex = 23;
-            this.label_savedArticle.Text = "0";
+            this.btn_login.Location = new System.Drawing.Point(112, 20);
+            this.btn_login.Name = "btn_login";
+            this.btn_login.Size = new System.Drawing.Size(77, 50);
+            this.btn_login.TabIndex = 27;
+            this.btn_login.Text = "로그인";
+            this.btn_login.UseVisualStyleBackColor = true;
+            this.btn_login.Click += new System.EventHandler(this.btn_login_Click);
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.btn_login);
+            this.groupBox1.Controls.Add(this.text_userid);
+            this.groupBox1.Controls.Add(this.text_passwd);
+            this.groupBox1.Location = new System.Drawing.Point(399, 24);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(195, 77);
+            this.groupBox1.TabIndex = 28;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "로그인 정보";
             // 
             // label_savedImage
             // 
             this.label_savedImage.AutoSize = true;
-            this.label_savedImage.Location = new System.Drawing.Point(547, 76);
+            this.label_savedImage.Location = new System.Drawing.Point(768, 15);
             this.label_savedImage.Name = "label_savedImage";
             this.label_savedImage.Size = new System.Drawing.Size(11, 12);
             this.label_savedImage.TabIndex = 24;
             this.label_savedImage.Text = "0";
+            this.label_savedImage.Visible = false;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(708, 15);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(33, 12);
+            this.label2.TabIndex = 22;
+            this.label2.Text = "짤방:";
+            this.label2.Visible = false;
+            // 
+            // label_savedArticle
+            // 
+            this.label_savedArticle.AutoSize = true;
+            this.label_savedArticle.Location = new System.Drawing.Point(672, 15);
+            this.label_savedArticle.Name = "label_savedArticle";
+            this.label_savedArticle.Size = new System.Drawing.Size(11, 12);
+            this.label_savedArticle.TabIndex = 23;
+            this.label_savedArticle.Text = "0";
+            this.label_savedArticle.Visible = false;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(627, 15);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(21, 12);
+            this.label1.TabIndex = 21;
+            this.label1.Text = "글:";
+            this.label1.Visible = false;
             // 
             // MainFrame
             // 
@@ -318,6 +321,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1149, 821);
+            this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.label_savedImage);
             this.Controls.Add(this.label_savedArticle);
             this.Controls.Add(this.label2);
@@ -329,11 +333,7 @@
             this.Controls.Add(this.list_galleryList);
             this.Controls.Add(this.btn_refresh);
             this.Controls.Add(this.check_username);
-            this.Controls.Add(this.check_userid);
-            this.Controls.Add(this.check_subject);
             this.Controls.Add(this.search_username);
-            this.Controls.Add(this.search_userid);
-            this.Controls.Add(this.search_subject);
             this.Controls.Add(this.btn_stop);
             this.Controls.Add(this.tabControl1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -345,6 +345,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.data_article)).EndInit();
             this.tabPage3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.data_picture)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -356,11 +358,7 @@
         private System.Windows.Forms.DataGridView data_article;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.Button btn_stop;
-        private System.Windows.Forms.TextBox search_subject;
-        private System.Windows.Forms.TextBox search_userid;
         private System.Windows.Forms.TextBox search_username;
-        private System.Windows.Forms.CheckBox check_subject;
-        private System.Windows.Forms.CheckBox check_userid;
         private System.Windows.Forms.CheckBox check_username;
         private System.Windows.Forms.Button btn_refresh;
         private System.Windows.Forms.DataGridView data_picture;
@@ -369,10 +367,14 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox text_logger;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox text_userid;
+        private System.Windows.Forms.TextBox text_passwd;
+        private System.Windows.Forms.Button btn_login;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label label_savedImage;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label_savedArticle;
-        private System.Windows.Forms.Label label_savedImage;
+        private System.Windows.Forms.Label label1;
     }
 }
 
