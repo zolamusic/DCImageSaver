@@ -1,6 +1,4 @@
-﻿using AngleSharp.Dom.Html;
-using AngleSharp.Parser.Html;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -8,145 +6,117 @@ using System.Threading.Tasks;
 
 namespace DCUtils
 {
-    public class Connection
+    internal class Connection
     {
-        private const string useragentMobile = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G34 Safari/601.1";
-        private const string useragentDesktop = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36";
-        
-        private Uri url;
-        private Uri referer;
-        private string useragent;
-        private static CookieCollection loginCookies = new CookieCollection();
-        
+        private const string UseragentMobile = "Mozilla/5.0 (Linux; Android 4.3; Nexus 7 Build/JSS15Q) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2307.2 Safari/537.36";
+        private const string UseragentDesktop = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.106 Safari/537.36";
+
+        private readonly Uri _url;
+        private readonly Uri _referer;
+        private readonly string _useragent;
+        private static CookieCollection _loginCookies = new CookieCollection();
+
         public Connection(string url, string referer, bool isMobile)
         {
-            this.url = new Uri(url);
-            this.referer = new Uri(referer);
-            if (isMobile)
-            {
-                this.useragent = useragentMobile;
-            }
-            else
-            {
-                this.useragent = useragentDesktop;
-            }
+            _url = new Uri(url);
+            _referer = new Uri(referer);
+            _useragent = isMobile ? UseragentMobile : UseragentDesktop;
         }
 
-        public async Task<IHtmlDocument> ConnectHtml()
+        public async Task<Response> Get()
         {
-            HtmlParser parser = new HtmlParser();
-            CookieContainer cookieContainer = new CookieContainer();
-            using (HttpClientHandler handler = new HttpClientHandler() { CookieContainer = cookieContainer })
-            using (HttpClient client = new HttpClient(handler))
+            var cookieContainer = new CookieContainer();
+            using (var handler = new HttpClientHandler { CookieContainer = cookieContainer })
+            using (var client = new HttpClient(handler))
             {
-                cookieContainer.Add(loginCookies);
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(this.useragent);
-                client.DefaultRequestHeaders.Referrer = this.referer;
+                cookieContainer.Add(_loginCookies);
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(_useragent);
+                client.DefaultRequestHeaders.Referrer = _referer;
 
-                using (HttpResponseMessage response = await client.GetAsync(this.url))
+                using (var httpResponse = await client.GetAsync(_url))
                 {
-                    using (HttpContent content = response.Content)
+                    var responsedHeader = httpResponse.Headers;
+                    using (var content = httpResponse.Content)
                     {
-                        string getString = await content.ReadAsStringAsync();
-                        return parser.Parse(getString);
+                        var responsedBody = await content.ReadAsStringAsync();
+                        var response = new Response(responsedHeader, responsedBody);
+                        return response;
                     }
                 }
             }
         }
-
-        public async Task<IHtmlDocument> ConnectHtml(List<KeyValuePair<string, string>> pairs)
-        {
-            HtmlParser parser = new HtmlParser();
-            HttpContent query = new FormUrlEncodedContent(pairs);
-            CookieContainer cookieContainer = new CookieContainer();
-            using (HttpClientHandler handler = new HttpClientHandler() { CookieContainer = cookieContainer })
-            using (HttpClient client = new HttpClient(handler))
-            {
-                cookieContainer.Add(loginCookies);
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(this.useragent);
-                client.DefaultRequestHeaders.Referrer = this.referer;
-                client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
-
-                using (HttpResponseMessage response = await client.PostAsync(this.url, query))
-                {
-                    using (HttpContent content = response.Content)
-                    {
-                        string getString = await content.ReadAsStringAsync();
-                        return parser.Parse(getString);
-                    }
-                }
-            }
-        }
-
-        public async Task<string> ConnectString()
-        {
-            HtmlParser parser = new HtmlParser();
-            CookieContainer cookieContainer = new CookieContainer();
-            using (HttpClientHandler handler = new HttpClientHandler() { CookieContainer = cookieContainer })
-            using (HttpClient client = new HttpClient(handler))
-            {
-                cookieContainer.Add(loginCookies);
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(this.useragent);
-                client.DefaultRequestHeaders.Referrer = this.referer;
-
-                using (HttpResponseMessage response = await client.GetAsync(this.url))
-                {
-                    using (HttpContent content = response.Content)
-                    {
-                        return await content.ReadAsStringAsync();
-                    }
-                }
-            }
-        }
-
-        public async Task<string> ConnectString(List<KeyValuePair<string, string>> pairs)
-        {
-            HtmlParser parser = new HtmlParser();
-            HttpContent query = new FormUrlEncodedContent(pairs);
-            CookieContainer cookieContainer = new CookieContainer();
-            using (HttpClientHandler handler = new HttpClientHandler() { CookieContainer = cookieContainer })
-            using (HttpClient client = new HttpClient(handler))
-            {
-                cookieContainer.Add(loginCookies);
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(this.useragent);
-                client.DefaultRequestHeaders.Referrer = this.referer;
-                client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
-
-                using (HttpResponseMessage response = await client.PostAsync(this.url, query))
-                {
-                    using (HttpContent content = response.Content)
-                    {
-                        return await content.ReadAsStringAsync();
-                    }
-                }
-            }
-        }
-
-        public async Task<CookieCollection> GetLoginCookie(List<KeyValuePair<string, string>> pairs)
+        
+        public async Task<Response> Post(List<KeyValuePair<string, string>> pairs)
         {
             HttpContent query = new FormUrlEncodedContent(pairs);
-
-            CookieContainer cookieContainer = new CookieContainer();
-            using (HttpClientHandler handler = new HttpClientHandler() { CookieContainer = cookieContainer })
-            using (HttpClient client = new HttpClient(handler))
+            var cookieContainer = new CookieContainer();
+            using (var handler = new HttpClientHandler { CookieContainer = cookieContainer })
+            using (var client = new HttpClient(handler))
             {
-                client.DefaultRequestHeaders.UserAgent.ParseAdd(this.useragent);
-                client.DefaultRequestHeaders.Referrer = this.referer;
+                cookieContainer.Add(_loginCookies);
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(_useragent);
+                client.DefaultRequestHeaders.Referrer = _referer;
                 client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
 
-                using (HttpResponseMessage response = await client.PostAsync(this.url, query))
+                using (var httpResponse = await client.PostAsync(_url, query))
                 {
-                    using (HttpContent content = response.Content)
+                    var responsedHeader = httpResponse.Headers;
+                    using (var content = httpResponse.Content)
                     {
-                        Task<string> getStringTask = content.ReadAsStringAsync();
-                        string result = await getStringTask;
+                        var responsedBody = await content.ReadAsStringAsync();
+                        var response = new Response(responsedHeader, responsedBody);
+                        return response;
                     }
-                    if (cookieContainer.Count > 3)
-                    {
-                        loginCookies.Add(cookieContainer.GetCookies(new Uri("http://" + this.url.Host))[0]);
-                    }
+                }
+            }
+        }
 
-                    return cookieContainer.GetCookies(this.url);
+        public async Task<Response> Post(List<KeyValuePair<string, string>> pairs, Cookie cookie)
+        {
+            HttpContent query = new FormUrlEncodedContent(pairs);
+            var cookieContainer = new CookieContainer();
+            using (var handler = new HttpClientHandler { CookieContainer = cookieContainer })
+            using (var client = new HttpClient(handler))
+            {
+                cookieContainer.Add(_loginCookies);
+                cookieContainer.Add(new Uri($"http://{_url.Host}"), cookie);
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(_useragent);
+                client.DefaultRequestHeaders.Referrer = _referer;
+                client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+
+                using (var httpResponse = await client.PostAsync(_url, query))
+                {
+                    var responsedHeader = httpResponse.Headers;
+                    using (var content = httpResponse.Content)
+                    {
+                        var responsedBody = await content.ReadAsStringAsync();
+                        var response = new Response(responsedHeader, responsedBody);
+                        return response;
+                    }
+                }
+            }
+        }
+        
+        public async Task<CookieContainer> SetCookie(List<KeyValuePair<string, string>> pairs)
+        {
+            HttpContent query = new FormUrlEncodedContent(pairs);
+            var cookieContainer = new CookieContainer();
+            using (var handler = new HttpClientHandler { CookieContainer = cookieContainer })
+            using (var client = new HttpClient(handler))
+            {
+                client.DefaultRequestHeaders.UserAgent.ParseAdd(_useragent);
+                client.DefaultRequestHeaders.Referrer = _referer;
+                client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+
+                using (var httpResponse = await client.PostAsync(_url, query))
+                {
+                    using (var content = httpResponse.Content)
+                    {
+                        await content.ReadAsStringAsync();
+                        if (cookieContainer.Count == 4)
+                            _loginCookies = cookieContainer.GetCookies(new Uri($"http://{_url.Host}"));
+                        return cookieContainer;
+                    }
                 }
             }
         }

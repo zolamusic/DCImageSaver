@@ -104,6 +104,7 @@
             this.data_article.Location = new System.Drawing.Point(3, 3);
             this.data_article.Name = "data_article";
             this.data_article.ReadOnly = true;
+            this.data_article.RowHeadersVisible = false;
             this.data_article.RowTemplate.Height = 23;
             this.data_article.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.data_article.Size = new System.Drawing.Size(967, 685);
@@ -135,6 +136,7 @@
             this.data_picture.MultiSelect = false;
             this.data_picture.Name = "data_picture";
             this.data_picture.ReadOnly = true;
+            this.data_picture.RowHeadersVisible = false;
             this.data_picture.RowTemplate.Height = 23;
             this.data_picture.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.data_picture.Size = new System.Drawing.Size(967, 685);
@@ -206,7 +208,7 @@
             // 
             // button1
             // 
-            this.button1.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.button1.Font = new System.Drawing.Font("Gulim", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.button1.Location = new System.Drawing.Point(138, 11);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(31, 42);
@@ -217,7 +219,7 @@
             // 
             // button2
             // 
-            this.button2.Font = new System.Drawing.Font("굴림", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.button2.Font = new System.Drawing.Font("Gulim", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.button2.Location = new System.Drawing.Point(138, 59);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(31, 42);
